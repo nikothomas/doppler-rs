@@ -63,7 +63,16 @@ else
     echo "   ⚠️  Main Cargo.toml not found"
 fi
 
-# Step 7: Clean up temporary files
+# Step 7: Copy auto-generated README to root
+echo "📄 Copying auto-generated README to root..."
+if [ -f "generated/README.md" ]; then
+    cp generated/README.md README.md
+    echo "   ✅ Copied generated README.md to root directory"
+else
+    echo "   ⚠️  Generated README.md not found"
+fi
+
+# Step 8: Clean up temporary files
 echo "🧹 Cleaning up temporary files..."
 rm -f openapi-processed.yaml
 

@@ -2,18 +2,24 @@
 
 [![Crates.io](https://img.shields.io/crates/v/doppler-rs.svg)](https://crates.io/crates/doppler-rs)
 [![Documentation](https://docs.rs/doppler-rs/badge.svg)](https://docs.rs/doppler-rs)
-[![License](https://img.shields.io/crates/l/doppler-rs.svg)](https://github.com/yourusername/doppler-rs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An unofficial Rust client library for the [Doppler](https://doppler.com) API. Doppler is a secrets management platform that helps developers securely store, manage, and deploy environment variables and secrets across applications and environments.
+Unofficial client library for the Doppler API - secure secrets management platform
 
-## Features
+## 🔐 About Doppler
 
-- **Complete API Coverage**: Auto-generated from Doppler's OpenAPI specification
-- **Async/Await Support**: Built on `reqwest` with full async support
-- **Type Safety**: Strongly typed request/response models with `serde` serialization
-- **Configurable**: Support for different authentication methods and custom configurations
+[Doppler](https://doppler.com) is a universal secrets manager that helps developers and DevOps teams securely store, manage, and deploy environment variables and secrets across applications, environments, and team members.
 
-## Installation
+## ✨ Features
+
+- **Complete API Coverage**: Full support for all Doppler API endpoints
+- **Type Safety**: Leverages Rust's type system for secure and reliable code
+- **Async/Await**: Built on top of `reqwest` with full async support using `tokio`
+- **Comprehensive Error Handling**: Detailed error types for robust error handling
+- **Automatic Serialization**: JSON serialization/deserialization with `serde`
+- **DateTime Support**: Native `chrono` integration for date/time fields
+
+## 📦 Installation
 
 Add this to your `Cargo.toml`:
 
@@ -23,154 +29,314 @@ doppler-rs = "0.0.1"
 tokio = { version = "1.0", features = ["full"] }
 ```
 
-## Quick Start
+### Features
+
+This crate supports the following optional features:
+
+#### `rustls` (TLS Backend)
+Enables rustls-tls for reqwest, providing a pure Rust TLS implementation:
+
+```toml
+[dependencies]
+doppler-rs = { version = "0.0.1", features = ["rustls"] }
+```
+
+**When to use rustls:**
+- You prefer a pure Rust TLS stack
+- You want to avoid OpenSSL dependencies
+- You're targeting environments where OpenSSL isn't available
+- You need reproducible builds across different platforms
+
+**Default behavior:** Without any features enabled, reqwest will use the system's default TLS implementation (typically OpenSSL on Unix systems and SChannel on Windows).
+
+```toml
+# Use default TLS (system native)
+doppler-rs = "0.0.1"
+
+# Use rustls TLS
+doppler-rs = { version = "0.0.1", features = ["rustls"] }
+```
+
+## 🚀 Quick Start
+
+### Authentication
+
+Doppler supports multiple authentication methods:
+
+#### Service Tokens (Recommended for Applications)
 
 ```rust
-use doppler_rs::apis::configuration::Configuration;
-use doppler_rs::apis::default_api;
+use doppler_rs::{apis::DefaultApi, models::*, Configuration};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Configure the API client
     let config = Configuration {
-        bearer_access_token: Some("your-doppler-token".to_string()),
+        bearer_access_token: Some("dp.st.your-service-token".to_string()),
         ..Default::default()
     };
-
-    // List all projects
-    let projects = default_api::projects_list(&config, None, None).await?;
-    println!("Projects: {:?}", projects);
-
+    
+    let api = DefaultApi::new_with_config(config);
+    
+    // List all secrets for the configured project and environment
+    let secrets = api.secrets_list().await?;
+    println!("Secrets: {:#?}", secrets);
+    
     Ok(())
 }
 ```
 
-## Authentication
-
-The Doppler API supports several authentication methods:
-
-### Service Tokens
-```rust
-let config = Configuration {
-    base_path: "https://api.doppler.com".to_string(),
-    bearer_access_token: Some("dp.st.your-service-token".to_string()),
-    ..Default::default()
-};
-```
-
-### Personal Tokens
-```rust
-let config = Configuration {
-    base_path: "https://api.doppler.com".to_string(),
-    bearer_access_token: Some("dp.pt.your-personal-token".to_string()),
-    ..Default::default()
-};
-```
-
-## API Examples
-
-### Working with Projects
+#### Personal Access Tokens
 
 ```rust
-use doppler_rs::apis::default_api;
-use doppler_rs::models::*;
+use doppler_rs::{apis::DefaultApi, Configuration};
 
-// List all projects
-let projects = default_api::projects_list(&config, None, None).await?;
-
-// Create a new project
-let project_request = ProjectsCreateRequest {
-    name: "My New Project".to_string(),
-    description: Some("A sample project".to_string()),
-};
-let project = default_api::projects_create(&config, project_request).await?;
-
-// Get a specific project
-let project = default_api::projects_get(&config, "project-name").await?;
-```
-
-### Working with Environments
-
-```rust
-// List environments for a project
-let environments = default_api::environments_list(&config, "project-name").await?;
-
-// Create a new environment
-let env_request = EnvironmentsCreateRequest {
-    name: "Development".to_string(),
-    slug: "dev".to_string(),
-    personal_configs: Some(false),
-};
-let environment = default_api::environments_create(&config, "project-name", env_request).await?;
-```
-
-### Working with Configs
-
-```rust
-// List configs for a project and environment
-let configs = default_api::configs_list(&config, "project-name", Some("environment-name")).await?;
-
-// Get secrets from a config
-let secrets = default_api::configs_secrets_download(&config, "project-name", "config-name", None).await?;
-```
-
-## API Coverage
-
-This client provides access to all Doppler API endpoints, including:
-
-- **Projects**: Create, list, retrieve, update, and delete projects
-- **Environments**: Manage project environments
-- **Configs**: Handle configuration management
-- **Secrets**: Retrieve and manage secrets
-- **Service Tokens**: Manage API authentication tokens
-- **Integrations**: Configure external service integrations
-- **Audit Logs**: Access audit trail information
-- **Users & Groups**: Manage team access and permissions
-
-## Error Handling
-
-The client uses standard Rust error handling patterns:
-
-```rust
-match default_api::projects_list(&config, None, None).await {
-    Ok(projects) => println!("Found {} projects", projects.projects.len()),
-    Err(e) => eprintln!("API error: {}", e),
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = Configuration {
+        bearer_access_token: Some("dp.pt.your-personal-token".to_string()),
+        ..Default::default()
+    };
+    
+    let api = DefaultApi::new_with_config(config);
+    
+    // Get current user information
+    let me = api.auth_me().await?;
+    println!("Current user: {:#?}", me);
+    
+    Ok(())
 }
 ```
 
-## Configuration Options
-
-The `Configuration` struct supports various options:
+### Managing Secrets
 
 ```rust
-use doppler_rs::apis::configuration::Configuration;
+use doppler_rs::{apis::DefaultApi, models::*, Configuration};
+use std::collections::HashMap;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = Configuration {
+        bearer_access_token: Some("dp.st.your-service-token".to_string()),
+        ..Default::default()
+    };
+    
+    let api = DefaultApi::new_with_config(config);
+    
+    // List secrets
+    let secrets_response = api.secrets_list().await?;
+    println!("Found {} secrets", secrets_response.secrets.len());
+    
+    // Get a specific secret
+    let secret = api.secrets_get()
+        .name("DATABASE_URL")
+        .send()
+        .await?;
+    println!("Secret value: {}", secret.value.computed);
+    
+    // Update secrets
+    let mut secrets_map = HashMap::new();
+    secrets_map.insert("NEW_SECRET".to_string(), "secret-value".to_string());
+    
+    let update_request = UpdateSecretsRequest {
+        secrets: Some(secrets_map),
+        change_requests: None,
+    };
+    
+    let updated = api.secrets_update(update_request).await?;
+    println!("Updated secrets: {:#?}", updated);
+    
+    Ok(())
+}
+```
+
+### Project and Environment Management
+
+```rust
+use doppler_rs::{apis::DefaultApi, models::*, Configuration};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = Configuration {
+        bearer_access_token: Some("dp.pt.your-personal-token".to_string()),
+        ..Default::default()
+    };
+    
+    let api = DefaultApi::new_with_config(config);
+    
+    // List projects
+    let projects = api.projects_list().await?;
+    for project in &projects.projects {
+        println!("Project: {} ({})", project.name, project.slug);
+    }
+    
+    // Create a new environment
+    let create_env_request = CreateEnvironmentRequest {
+        name: "staging".to_string(),
+        slug: Some("staging".to_string()),
+        project: "my-project".to_string(),
+    };
+    
+    let new_env = api.environments_create(create_env_request).await?;
+    println!("Created environment: {:#?}", new_env);
+    
+    Ok(())
+}
+```
+
+### Service Account Management
+
+```rust
+use doppler_rs::{apis::DefaultApi, models::*, Configuration};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = Configuration {
+        bearer_access_token: Some("dp.pt.your-personal-token".to_string()),
+        ..Default::default()
+    };
+    
+    let api = DefaultApi::new_with_config(config);
+    
+    // List service accounts
+    let service_accounts = api.service_accounts_list().await?;
+    for account in &service_accounts.service_accounts {
+        println!("Service Account: {} ({})", account.name, account.slug);
+    }
+    
+    // Create service account token
+    let create_token_request = CreateServiceAccountTokenRequest {
+        name: "CI/CD Token".to_string(),
+        expire_at: None,
+        config: Some("production".to_string()),
+    };
+    
+    let token = api.service_account_tokens_create()
+        .service_account("my-service-account")
+        .create_service_account_token_request(create_token_request)
+        .send()
+        .await?;
+    
+    println!("Created token: {}", token.api_token.key);
+    
+    Ok(())
+}
+```
+
+## 📖 API Documentation
+
+This client provides access to all Doppler API endpoints:
+
+### Core Resources
+- **Secrets**: Manage environment variables and secrets
+- **Projects**: Organize secrets into projects  
+- **Environments**: Separate secrets by environment (dev, staging, prod)
+- **Configs**: Fine-grained secret organization within environments
+
+### Access Control
+- **Users**: Manage team members and permissions
+- **Groups**: Organize users into groups with shared permissions
+- **Service Accounts**: Automated access for applications and CI/CD
+- **Workplace Roles**: Define permissions across the organization
+- **Project Roles**: Define permissions within specific projects
+
+### Security & Compliance
+- **Activity Logs**: Audit trail of all changes and access
+- **Config Logs**: Detailed history of secret changes
+- **Trusted IPs**: Restrict access by IP address
+- **Change Request Policies**: Require approval for sensitive changes
+
+### Integrations
+- **Webhooks**: Real-time notifications of changes
+- **Syncs**: Automatically sync secrets to external services
+- **Dynamic Secrets**: Generate short-lived credentials on-demand
+
+For detailed API documentation, visit: https://docs.doppler.com/reference
+
+## 🛠️ Configuration
+
+The client uses `reqwest` with sensible defaults:
+
+```rust
+use doppler_rs::Configuration;
 
 let config = Configuration {
     base_path: "https://api.doppler.com".to_string(),
-    user_agent: Some("MyApp/1.0".to_string()),
     bearer_access_token: Some("your-token".to_string()),
+    user_agent: Some("doppler-rs/0.0.1".to_string()),
     ..Default::default()
 };
 ```
 
-## Development
+### Environment Variables
 
-This crate is auto-generated from Doppler's OpenAPI specification using the OpenAPI Generator. To regenerate the client:
+You can also configure the client using environment variables:
 
-1. Download the latest OpenAPI spec from Doppler
-2. Run the code generation script: `./code-gen`
+```bash
+export DOPPLER_TOKEN="dp.st.your-service-token"
+```
 
-## Contributing
+```rust
+use doppler_rs::{apis::DefaultApi, Configuration};
 
-Contributions are welcome! Please note that this crate is auto-generated, so most changes should be made to the generation process rather than the generated code directly.
+let config = Configuration {
+    bearer_access_token: std::env::var("DOPPLER_TOKEN").ok(),
+    ..Default::default()
+};
+```
 
-## License
+## 🔒 Security Best Practices
 
-This project is licensed under the Unlicense - see the generated code for details.
+1. **Use Service Tokens for Applications**: Service tokens are scoped to specific projects/environments
+2. **Rotate Tokens Regularly**: Set expiration dates and rotate tokens periodically  
+3. **Limit Token Scope**: Use the most restrictive token type that meets your needs
+4. **Store Tokens Securely**: Never commit tokens to version control
+5. **Use Trusted IPs**: Restrict API access to known IP addresses when possible
+6. **Monitor Activity Logs**: Regularly review API usage and access patterns
 
-## Links
+## 🤝 Contributing
 
-- [Doppler Documentation](https://docs.doppler.com/)
-- [Doppler API Reference](https://docs.doppler.com/reference)
-- [Crates.io](https://crates.io/crates/doppler-rs)
-- [Documentation](https://docs.rs/doppler-rs)
+This is a generated API client library. Most improvements come from updates to the OpenAPI specification or the generation templates.
+
+### Reporting Issues
+
+If you encounter bugs or have feature requests:
+1. Check if it's an API issue by testing with the [Doppler API directly](https://docs.doppler.com/reference)
+2. For client-specific issues, please open an issue on [GitHub](https://github.com/nikothomas/doppler-rs/issues)
+3. Include relevant code examples and error messages
+
+### Development Setup
+
+1. Clone the repository
+2. Install Rust (latest stable)
+3. Run tests: `cargo test`
+4. Run examples: `cargo run --example basic_usage`
+
+### Generating the Client
+
+This client is generated from the Doppler OpenAPI specification:
+
+```bash
+# Regenerate the client
+./generate_with_chrono.sh
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+- **Documentation**: https://docs.doppler.com
+- **Community**: https://community.doppler.com  
+- **Issues**: Please open an issue on [GitHub](https://github.com/nikothomas/doppler-rs/issues)
+- **Security**: For security issues related to the doppler api and not this crate, email security@doppler.com
+
+## 🏷️ Version
+
+**Current Version**: 0.0.1
+
+**Generated with**: OpenAPI Generator
+
+---
+
+**Disclaimer**: This is an unofficial client library. For official SDKs and support, visit [Doppler's official documentation](https://docs.doppler.com). 

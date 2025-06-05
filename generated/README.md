@@ -29,6 +29,34 @@ doppler-rs = "0.0.1"
 tokio = { version = "1.0", features = ["full"] }
 ```
 
+### Features
+
+This crate supports the following optional features:
+
+#### `rustls` (TLS Backend)
+Enables rustls-tls for reqwest, providing a pure Rust TLS implementation:
+
+```toml
+[dependencies]
+doppler-rs = { version = "0.0.1", features = ["rustls"] }
+```
+
+**When to use rustls:**
+- You prefer a pure Rust TLS stack
+- You want to avoid OpenSSL dependencies
+- You're targeting environments where OpenSSL isn't available
+- You need reproducible builds across different platforms
+
+**Default behavior:** Without any features enabled, reqwest will use the system's default TLS implementation (typically OpenSSL on Unix systems and SChannel on Windows).
+
+```toml
+# Use default TLS (system native)
+doppler-rs = "0.0.1"
+
+# Use rustls TLS
+doppler-rs = { version = "0.0.1", features = ["rustls"] }
+```
+
 ## 🚀 Quick Start
 
 ### Authentication
