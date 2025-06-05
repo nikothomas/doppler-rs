@@ -175,7 +175,7 @@ dependencies = [
 
 [[package]]
 name = "doppler-rs"
-version = "1.0.0-oas3.1"
+version = "0.0.1"
 dependencies = [
  "reqwest",
  "serde",

@@ -6,11 +6,13 @@ servers:
 - url: https://api.doppler.com/
 components:
   securitySchemes:
-    sec0:
-      type: oauth2
-      flows: {}
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Use Doppler service tokens (dp.st.xxx) or personal tokens (dp.pt.xxx) as Bearer tokens"
 security:
-- sec0: []
+- bearerAuth: []
 paths:
   /v3/projects:
     get:

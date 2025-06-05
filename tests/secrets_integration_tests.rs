@@ -7,24 +7,7 @@ use std::env;
 fn create_test_config() -> Configuration {
     let mut config = Configuration::new();
     
-    if let Ok(token) = env::var("DOPPLER_TOKEN") {
-        // Create a reqwest client with the Authorization header
-        let mut headers = reqwest::header::HeaderMap::new();
-        let auth_value = reqwest::header::HeaderValue::from_str(&format!("Bearer {}", token))
-            .expect("Invalid token format");
-        headers.insert(reqwest::header::AUTHORIZATION, auth_value);
-        
-        let client = reqwest::Client::builder()
-            .default_headers(headers)
-            .build()
-            .expect("Failed to create HTTP client");
-        
-        config.client = client;
-        config.base_path = "https://api.doppler.com".to_string(); // Remove /v3/ as it's already in the endpoints
-    } else {
-        panic!("DOPPLER_TOKEN environment variable must be set to run integration tests");
-    }
-    
+    config.bearer_access_token = Some(env::var("DOPPLER_TOKEN").expect("DOPPLER_TOKEN environment variable must be set to run integration tests"));
     config
 }
 
