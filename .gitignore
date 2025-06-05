@@ -1,0 +1,10 @@
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Test-related files
+.env
+.env.local
+test_credentials.txt
+.idea
+doppler-rs.iml
