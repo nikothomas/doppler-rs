@@ -1,6 +1,6 @@
 [package]
 name = "doppler-rs"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Nikolas Yanek-Chrones <research@icarai.io>"]
 description = "Unofficial client library for the Doppler API - secure secrets management platform"
 license = "MIT"
@@ -9,7 +9,7 @@ repository = "https://github.com/nikothomas/doppler-rs"
 homepage = "https://github.com/nikothomas/doppler-rs"
 documentation = "https://docs.rs/doppler-rs"
 readme = "README.md"
-keywords = ["doppler", "secrets", "api", "client", "env"]
+keywords = ["doppler", "secrets", "api", "client", "environment-variables"]
 categories = ["api-bindings", "web-programming::http-client"]
 
 [features]

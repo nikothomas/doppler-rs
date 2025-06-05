@@ -25,7 +25,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-doppler-rs = "0.0.1"
+doppler-rs = "0.0.2"
 tokio = { version = "1.0", features = ["full"] }
 ```
 
@@ -38,7 +38,7 @@ Enables rustls-tls for reqwest, providing a pure Rust TLS implementation:
 
 ```toml
 [dependencies]
-doppler-rs = { version = "0.0.1", features = ["rustls"] }
+doppler-rs = { version = "0.0.2", features = ["rustls"] }
 ```
 
 **When to use rustls:**
@@ -51,10 +51,10 @@ doppler-rs = { version = "0.0.1", features = ["rustls"] }
 
 ```toml
 # Use default TLS (system native)
-doppler-rs = "0.0.1"
+doppler-rs = "0.0.2"
 
 # Use rustls TLS
-doppler-rs = { version = "0.0.1", features = ["rustls"] }
+doppler-rs = { version = "0.0.2", features = ["rustls"] }
 ```
 
 ## 🚀 Quick Start
@@ -66,19 +66,25 @@ Doppler supports multiple authentication methods:
 #### Service Tokens (Recommended for Applications)
 
 ```rust
-use doppler_rs::{apis::DefaultApi, models::*, Configuration};
+use doppler_rs::{apis::{configuration::Configuration, default_api}, models};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = Configuration {
-        bearer_access_token: Some("dp.st.your-service-token".to_string()),
-        ..Default::default()
-    };
-    
-    let api = DefaultApi::new_with_config(config);
+    let mut config = Configuration::new();
+    config.bearer_access_token = Some("dp.st.your-service-token".to_string());
     
     // List all secrets for the configured project and environment
-    let secrets = api.secrets_list().await?;
+    let secrets = default_api::secrets_list(
+        &config,
+        "your-project", 
+        "your-config",
+        None, // accepts
+        None, // include_dynamic_secrets 
+        None, // dynamic_secrets_ttl_sec
+        None, // secrets
+        None, // include_managed_secrets
+    ).await?;
+    
     println!("Secrets: {:#?}", secrets);
     
     Ok(())
@@ -88,19 +94,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 #### Personal Access Tokens
 
 ```rust
-use doppler_rs::{apis::DefaultApi, Configuration};
+use doppler_rs::{apis::{configuration::Configuration, default_api}};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = Configuration {
-        bearer_access_token: Some("dp.pt.your-personal-token".to_string()),
-        ..Default::default()
-    };
-    
-    let api = DefaultApi::new_with_config(config);
+    let mut config = Configuration::new();
+    config.bearer_access_token = Some("dp.pt.your-personal-token".to_string());
     
     // Get current user information
-    let me = api.auth_me().await?;
+    let me = default_api::auth_me(&config).await?;
     println!("Current user: {:#?}", me);
     
     Ok(())
@@ -110,39 +112,52 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Managing Secrets
 
 ```rust
-use doppler_rs::{apis::DefaultApi, models::*, Configuration};
+use doppler_rs::{apis::{configuration::Configuration, default_api}, models};
 use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = Configuration {
-        bearer_access_token: Some("dp.st.your-service-token".to_string()),
-        ..Default::default()
-    };
+    let mut config = Configuration::new();
+    config.bearer_access_token = Some("dp.st.your-service-token".to_string());
     
-    let api = DefaultApi::new_with_config(config);
+    let project = "your-project";
+    let config_name = "your-config";
     
     // List secrets
-    let secrets_response = api.secrets_list().await?;
-    println!("Found {} secrets", secrets_response.secrets.len());
+    let secrets_response = default_api::secrets_list(
+        &config, 
+        project, 
+        config_name,
+        None, None, None, None, None
+    ).await?;
+    
+    if let Some(secrets) = &secrets_response.secrets {
+        println!("Found secrets in response");
+    }
     
     // Get a specific secret
-    let secret = api.secrets_get()
-        .name("DATABASE_URL")
-        .send()
-        .await?;
-    println!("Secret value: {}", secret.value.computed);
+    let secret = default_api::secrets_get(
+        &config,
+        project,
+        config_name, 
+        "DATABASE_URL"
+    ).await?;
     
-    // Update secrets
+    if let Some(value) = &secret.value {
+        println!("Secret value: {}", value.computed);
+    }
+    
+    // Update secrets using the UpdateSecretsRequest model
     let mut secrets_map = HashMap::new();
     secrets_map.insert("NEW_SECRET".to_string(), "secret-value".to_string());
     
-    let update_request = UpdateSecretsRequest {
-        secrets: Some(secrets_map),
-        change_requests: None,
-    };
+    let mut update_request = models::UpdateSecretsRequest::new(
+        project.to_string(),
+        config_name.to_string(),
+    );
+    update_request.secrets = Some(secrets_map);
     
-    let updated = api.secrets_update(update_request).await?;
+    let updated = default_api::secrets_update(&config, Some(update_request)).await?;
     println!("Updated secrets: {:#?}", updated);
     
     Ok(())
@@ -152,31 +167,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Project and Environment Management
 
 ```rust
-use doppler_rs::{apis::DefaultApi, models::*, Configuration};
+use doppler_rs::{apis::{configuration::Configuration, default_api}, models};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = Configuration {
-        bearer_access_token: Some("dp.pt.your-personal-token".to_string()),
-        ..Default::default()
-    };
-    
-    let api = DefaultApi::new_with_config(config);
+    let mut config = Configuration::new();
+    config.bearer_access_token = Some("dp.pt.your-personal-token".to_string());
     
     // List projects
-    let projects = api.projects_list().await?;
-    for project in &projects.projects {
-        println!("Project: {} ({})", project.name, project.slug);
+    let projects = default_api::projects_list(&config, None, None).await?;
+    if let Some(projects_list) = &projects.projects {
+        for project in projects_list {
+            if let (Some(name), Some(slug)) = (&project.name, &project.slug) {
+                println!("Project: {} ({})", name, slug);
+            }
+        }
     }
     
     // Create a new environment
-    let create_env_request = CreateEnvironmentRequest {
-        name: "staging".to_string(),
-        slug: Some("staging".to_string()),
-        project: "my-project".to_string(),
-    };
+    let create_env_request = models::CreateEnvironmentRequest::new(
+        "staging".to_string(),
+        "staging".to_string()
+    );
     
-    let new_env = api.environments_create(create_env_request).await?;
+    let new_env = default_api::environments_create(
+        &config,
+        "my-project",
+        Some(create_env_request)
+    ).await?;
+    
     println!("Created environment: {:#?}", new_env);
     
     Ok(())
@@ -186,37 +205,38 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Service Account Management
 
 ```rust
-use doppler_rs::{apis::DefaultApi, models::*, Configuration};
+use doppler_rs::{apis::{configuration::Configuration, default_api}, models};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = Configuration {
-        bearer_access_token: Some("dp.pt.your-personal-token".to_string()),
-        ..Default::default()
-    };
-    
-    let api = DefaultApi::new_with_config(config);
+    let mut config = Configuration::new();
+    config.bearer_access_token = Some("dp.pt.your-personal-token".to_string());
     
     // List service accounts
-    let service_accounts = api.service_accounts_list().await?;
-    for account in &service_accounts.service_accounts {
-        println!("Service Account: {} ({})", account.name, account.slug);
+    let service_accounts = default_api::service_accounts_list(&config, None, None).await?;
+    if let Some(accounts) = &service_accounts.service_accounts {
+        for account in accounts {
+            if let (Some(name), Some(slug)) = (&account.name, &account.slug) {
+                println!("Service Account: {} ({})", name, slug);
+            }
+        }
     }
     
     // Create service account token
-    let create_token_request = CreateServiceAccountTokenRequest {
-        name: "CI/CD Token".to_string(),
-        expire_at: None,
-        config: Some("production".to_string()),
-    };
+    let mut create_token_request = models::CreateServiceAccountTokenRequest::new(
+        "CI/CD Token".to_string()
+    );
+    create_token_request.config = Some("production".to_string());
     
-    let token = api.service_account_tokens_create()
-        .service_account("my-service-account")
-        .create_service_account_token_request(create_token_request)
-        .send()
-        .await?;
+    let token = default_api::service_account_tokens_create(
+        &config,
+        "my-service-account",
+        Some(create_token_request)
+    ).await?;
     
-    println!("Created token: {}", token.api_token.key);
+    if let Some(api_token) = &token.api_token {
+        println!("Created token: {}", api_token.key);
+    }
     
     Ok(())
 }
@@ -257,14 +277,13 @@ For detailed API documentation, visit: https://docs.doppler.com/reference
 The client uses `reqwest` with sensible defaults:
 
 ```rust
-use doppler_rs::Configuration;
+use doppler_rs::apis::configuration::Configuration;
 
-let config = Configuration {
-    base_path: "https://api.doppler.com".to_string(),
-    bearer_access_token: Some("your-token".to_string()),
-    user_agent: Some("doppler-rs/0.0.1".to_string()),
-    ..Default::default()
-};
+let mut config = Configuration::new();
+config.bearer_access_token = Some("your-token".to_string());
+
+// Optionally customize other settings
+config.user_agent = Some("MyApp/0.0.2".to_string());
 ```
 
 ### Environment Variables
@@ -276,12 +295,23 @@ export DOPPLER_TOKEN="dp.st.your-service-token"
 ```
 
 ```rust
-use doppler_rs::{apis::DefaultApi, Configuration};
+use doppler_rs::{apis::{configuration::Configuration, default_api}};
 
-let config = Configuration {
-    bearer_access_token: std::env::var("DOPPLER_TOKEN").ok(),
-    ..Default::default()
-};
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut config = Configuration::new();
+    config.bearer_access_token = std::env::var("DOPPLER_TOKEN").ok();
+    
+    // Use the configured client
+    let secrets = default_api::secrets_list(
+        &config,
+        "your-project",
+        "your-config", 
+        None, None, None, None, None
+    ).await?;
+    
+    Ok(())
+}
 ```
 
 ## 🔒 Security Best Practices
@@ -333,7 +363,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🏷️ Version
 
-**Current Version**: 0.0.1
+**Current Version**: 0.0.2
 
 **Generated with**: OpenAPI Generator
 
