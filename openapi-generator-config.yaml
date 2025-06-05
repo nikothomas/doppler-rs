@@ -1,7 +1,7 @@
 templateDir: custom_templates
 additionalProperties:
   packageName: "doppler-rs"
-  packageVersion: "0.0.1"
+  packageVersion: "0.0.2"
   packageCompany: "Nikolas Yanek-Chrones"
   packageAuthors: "Nikolas Yanek-Chrones <research@icarai.io>"
   packageDescription: "Unofficial client library for the Doppler API - secure secrets management platform"
