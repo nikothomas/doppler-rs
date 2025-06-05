@@ -1,0 +1,5 @@
+{{!
+  This partial template handles type mapping for model properties.
+  It specifically maps datetime-related field names to chrono types.
+}}
+{{#isDateTime}}chrono::DateTime<chrono::Utc>{{/isDateTime}}{{^isDateTime}}{{#isDate}}chrono::NaiveDate{{/isDate}}{{^isDate}}{{{datatype}}}{{/isDate}}{{/isDateTime}} 

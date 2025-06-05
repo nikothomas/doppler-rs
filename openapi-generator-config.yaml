@@ -1,0 +1,347 @@
+templateDir: custom_templates
+additionalProperties:
+  packageName: "doppler-rs"
+  packageVersion: "0.0.1"
+  packageCompany: "Nikolas Yanek-Chrones"
+  packageAuthors: "Nikolas Yanek-Chrones <research@icarai.io>"
+  packageDescription: "Unofficial client library for the Doppler API - secure secrets management platform"
+  packageHomepage: "https://github.com/nikothomas/doppler-rs"
+  packageRepository: "https://github.com/nikothomas/doppler-rs"
+  useDateTimeForDate: true
+  supportAsync: true
+  bestFitInt: true
+  preferUnsignedInt: true
+  avoidBoxedModels: true  
+  library: "reqwest"
+typeMappings:
+  DateTime: "chrono::DateTime<chrono::Utc>"
+  Date: "chrono::NaiveDate"
+importMappings:
+  "chrono::DateTime<chrono::Utc>": "chrono"
+  "chrono::NaiveDate": "chrono"
+modelNameMappings:
+  ApplicationJson: "ApplicationJson"
+schemaMappings:
+  # Map known datetime fields to proper datetime schemas
+  initial_fetch_at: "DateTime"
+  created_at: "DateTime"
+  updated_at: "DateTime"
+  last_fetch_at: "DateTime"
+  last_seen_at: "DateTime"
+  expires_at: "DateTime"
+  expire_at: "DateTime"
+inlineSchemaNameMappings:
+  # Configs
+  configs_delete_200_response: "ConfigDeleteResponse"
+  
+  # Secrets - Specific provider schemas
+  secrets_list_200_response_secrets_STRIPE: "StripeSecretData"
+  secrets_list_200_response_secrets_ALGOLIA: "AlgoliaSecretData"
+  secrets_list_200_response_secrets_DATABASE: "DatabaseSecretData"
+  secrets_list_200_response_secrets_USER: "UserSecretData"
+  secrets_update_200_response_secrets_STRIPE: "UpdatedStripeSecretData"
+  secrets_update_200_response_secrets_ALGOLIA: "UpdatedAlgoliaSecretData"
+  secrets_update_200_response_secrets_DATABASE: "UpdatedDatabaseSecretData"
+  
+  # Secret value types
+  secrets_update_request_change_requests_inner_valueType: "SecretValueType"
+  secrets_update_request_change_requests_inner_originalValueType: "OriginalSecretValueType"
+  
+  # Groups - Detailed schemas that weren't caught before
+  groups_get_200_response: "GroupGetResponse"
+  groups_get_200_response_group: "GroupWithDetails"
+  groups_get_200_response_group_default_project_role: "GroupDefaultProjectRole"
+  groups_get_200_response_group_projects_inner: "GroupProject"
+  groups_get_200_response_group_projects_inner_role: "GroupProjectRole"
+  groups_get_200_response_group_members_inner: "GroupMember"
+  groups_update_request: "UpdateGroupRequest"
+  
+  # Groups
+  groups_list_200_response_groups_inner: "Group"
+  groups_list_200_response: "GroupsListResponse"
+  groups_create_request: "CreateGroupRequest"
+  groups_add_member_request: "AddGroupMemberRequest"
+  
+  # Users
+  users_list_200_response_workplace_users_inner_user: "User"
+  users_list_200_response_workplace_users_inner: "WorkplaceUser"
+  users_list_200_response: "UsersListResponse"
+  users_get_200_response_workplace_user: "WorkplaceUserDetails"
+  users_get_200_response: "UserGetResponse"
+  users_update_request: "UpdateUserRequest"
+  
+  # Service Account Tokens
+  service_account_tokens_list_200_response_api_tokens_inner: "ServiceAccountToken"
+  service_account_tokens_list_200_response: "ServiceAccountTokensListResponse"
+  service_account_tokens_create_request: "CreateServiceAccountTokenRequest"
+  service_account_tokens_create_200_response_api_token: "ServiceAccountTokenDetails"
+  service_account_tokens_create_200_response: "ServiceAccountTokenCreateResponse"
+  service_account_tokens_get_200_response_api_token: "ServiceAccountTokenInfo"
+  service_account_tokens_get_200_response: "ServiceAccountTokenGetResponse"
+  service_account_tokens_get_404_response: "ServiceAccountTokenNotFoundResponse"
+  
+  # Config Inheritance
+  configs_inheritable_request: "ConfigInheritableRequest"
+  configs_inheritable_200_response_config: "ConfigInheritableDetails"
+  configs_inheritable_200_response: "ConfigInheritableResponse"
+  configs_inherits_request_inherits_inner: "ConfigInheritance"
+  configs_inherits_request: "ConfigInheritsRequest"
+  configs_inherits_200_response_config_inherits_inner: "ConfigInheritanceInfo"
+  configs_inherits_200_response_config: "ConfigInheritsDetails"
+  configs_inherits_200_response: "ConfigInheritsResponse"
+  
+  # Authentication
+  auth_oidc_request: "OidcAuthRequest"
+  auth_oidc_200_response: "OidcAuthResponse"
+  
+  # Change Request Policies
+  change_request_policies_get_200_response_policy_targets: "PolicyTargets"
+  change_request_policies_get_200_response_policy: "ChangeRequestPolicy"
+  change_request_policies_get_200_response: "ChangeRequestPolicyGetResponse"
+  change_request_policies_update_request_rules_inner_subjects_inner: "PolicySubject"
+  change_request_policies_update_request_rules_inner: "PolicyRule"
+  change_request_policies_update_request_targets: "PolicyTargetsRequest"
+  change_request_policies_update_request: "UpdateChangeRequestPolicyRequest"
+  change_request_policies_update_200_response_policy: "UpdatedChangeRequestPolicy"
+  change_request_policies_update_200_response: "ChangeRequestPolicyUpdateResponse"
+  change_request_policies_list_200_response_policies_inner: "ChangeRequestPolicyListItem"
+  change_request_policies_list_200_response: "ChangeRequestPoliciesListResponse"
+  
+  # Webhooks
+  webhooks_add_request_authentication: "WebhookAuthentication"
+  webhooks_add_request: "CreateWebhookRequest"
+  webhooks_update_request: "UpdateWebhookRequest"
+  
+  # Projects
+  projects_list_200_response_projects_inner: "Project"
+  projects_list_200_response: "ProjectsListResponse"
+  projects_create_request: "CreateProjectRequest"
+  projects_create_200_response_project: "ProjectDetails"
+  projects_create_200_response: "ProjectCreateResponse"
+  projects_get_200_response_project: "ProjectInfo"
+  projects_get_200_response: "ProjectGetResponse"
+  projects_update_request: "UpdateProjectRequest"
+  projects_update_200_response_project: "UpdatedProject"
+  projects_update_200_response: "ProjectUpdateResponse"
+  projects_delete_request: "DeleteProjectRequest"
+  
+  # Environments
+  environments_list_200_response_environments_inner: "Environment"
+  environments_list_200_response: "EnvironmentsListResponse"
+  environments_create_request: "CreateEnvironmentRequest"
+  environments_create_200_response_environment: "EnvironmentDetails"
+  environments_create_200_response: "EnvironmentCreateResponse"
+  environments_get_200_response_environment: "EnvironmentInfo"
+  environments_get_200_response: "EnvironmentGetResponse"
+  environments_rename_request: "RenameEnvironmentRequest"
+  environments_rename_200_response_environment: "RenamedEnvironment"
+  environments_rename_200_response: "EnvironmentRenameResponse"
+  
+  # Configs
+  configs_list_200_response_configs_inner: "Config"
+  configs_list_200_response: "ConfigsListResponse"
+  configs_create_request: "CreateConfigRequest"
+  configs_create_200_response_config: "ConfigDetails"
+  configs_create_200_response: "ConfigCreateResponse"
+  configs_get_200_response_config: "ConfigInfo"
+  configs_get_200_response: "ConfigGetResponse"
+  configs_update_request: "UpdateConfigRequest"
+  configs_update_200_response_config: "UpdatedConfig"
+  configs_update_200_response: "ConfigUpdateResponse"
+  configs_clone_request: "CloneConfigRequest"
+  configs_clone_200_response_config: "ClonedConfig"
+  configs_clone_200_response: "ConfigCloneResponse"
+  configs_unlock_request: "UnlockConfigRequest"
+  configs_unlock_200_response_config: "UnlockedConfig"
+  configs_unlock_200_response: "ConfigUnlockResponse"
+  configs_lock_request: "LockConfigRequest"
+  configs_lock_200_response_config: "LockedConfig"
+  configs_lock_200_response: "ConfigLockResponse"
+  
+  # Config Logs
+  config_logs_list_200_response_logs_inner_user: "LogUser"
+  config_logs_list_200_response_logs_inner: "ConfigLog"
+  config_logs_list_200_response: "ConfigLogsListResponse"
+  config_logs_get_200_response_log_diff_inner: "LogDiffEntry"
+  config_logs_get_200_response_log_user: "ConfigLogUser"
+  config_logs_get_200_response_log: "ConfigLogDetails"
+  config_logs_get_200_response: "ConfigLogGetResponse"
+  config_logs_rollback_200_response_log_diff_inner: "RollbackDiffEntry"
+  config_logs_rollback_200_response_log_user: "RollbackLogUser"
+  config_logs_rollback_200_response_log: "RollbackLog"
+  config_logs_rollback_200_response: "ConfigLogRollbackResponse"
+  
+  # Secrets
+  secrets_list_200_response_secrets_stripe: "StripeSecret"
+  secrets_list_200_response_secrets_algolia: "AlgoliaSecret"
+  secrets_list_200_response_secrets_database: "DatabaseSecret"
+  secrets_list_200_response_secrets_user: "UserSecret"
+  secrets_list_200_response_secrets: "SecretsMap"
+  secrets_list_200_response: "SecretsListResponse"
+  secrets_update_request_secrets: "SecretsUpdateMap"
+  secrets_update_request_change_requests_inner_value_type: "SecretValueType"
+  secrets_update_request_change_requests_inner_original_value_type: "OriginalSecretValueType"
+  secrets_update_request_change_requests_inner: "SecretChangeRequest"
+  secrets_update_request: "UpdateSecretsRequest"
+  secrets_update_200_response_secrets_stripe: "UpdatedStripeSecret"
+  secrets_update_200_response_secrets_algolia: "UpdatedAlgoliaSecret"
+  secrets_update_200_response_secrets_database: "UpdatedDatabaseSecret"
+  secrets_update_200_response_secrets: "UpdatedSecretsMap"
+  secrets_update_200_response: "SecretsUpdateResponse"
+  secrets_get_200_response_value: "SecretValue"
+  secrets_get_200_response: "SecretGetResponse"
+  secrets_names_200_response: "SecretNamesResponse"
+  secrets_download_200_response: "SecretsDownloadResponse"
+  secrets_update_note_request: "UpdateSecretNoteRequest"
+  secrets_update_note_200_response: "SecretNoteResponse"
+  
+  # Service Tokens
+  service_tokens_list_200_response_tokens_inner: "ServiceToken"
+  service_tokens_list_200_response: "ServiceTokensListResponse"
+  service_tokens_create_request: "CreateServiceTokenRequest"
+  service_tokens_create_200_response_token: "ServiceTokenDetails"
+  service_tokens_create_200_response: "ServiceTokenCreateResponse"
+  service_tokens_delete_request: "DeleteServiceTokenRequest"
+  
+  # Workplace
+  workplace_update_request: "UpdateWorkplaceRequest"
+  workplace_update_200_response_workplace: "WorkplaceDetails"
+  workplace_update_200_response: "WorkplaceUpdateResponse"
+  workplace_get_200_response_workplace: "WorkplaceInfo"
+  workplace_get_200_response: "WorkplaceGetResponse"
+  
+  # Activity Logs
+  activity_logs_list_200_response_logs_inner_user: "ActivityLogUser"
+  activity_logs_list_200_response_logs_inner: "ActivityLog"
+  activity_logs_list_200_response: "ActivityLogsListResponse"
+  activity_logs_retrieve_200_response_log_user: "ActivityLogUserDetails"
+  activity_logs_retrieve_200_response_log: "ActivityLogDetails"
+  activity_logs_retrieve_200_response: "ActivityLogGetResponse"
+  
+  # Workplace Roles
+  workplace_roles_create_request: "CreateWorkplaceRoleRequest"
+  workplace_roles_create_200_response_role: "WorkplaceRoleDetails"
+  workplace_roles_create_200_response: "WorkplaceRoleCreateResponse"
+  workplace_roles_list_200_response_roles_inner: "WorkplaceRole"
+  workplace_roles_list_200_response: "WorkplaceRolesListResponse"
+  workplace_roles_get_200_response_role: "WorkplaceRoleInfo"
+  workplace_roles_get_200_response: "WorkplaceRoleGetResponse"
+  workplace_roles_update_request: "UpdateWorkplaceRoleRequest"
+  workplace_roles_update_200_response_role: "UpdatedWorkplaceRole"
+  workplace_roles_update_200_response: "WorkplaceRoleUpdateResponse"
+  workplace_roles_list_permissions_200_response: "WorkplacePermissionsResponse"
+  
+  # Project Roles
+  project_roles_get_200_response_role: "ProjectRoleInfo"
+  project_roles_get_200_response: "ProjectRoleGetResponse"
+  project_roles_update_request: "UpdateProjectRoleRequest"
+  project_roles_update_200_response_role: "UpdatedProjectRole"
+  project_roles_update_200_response: "ProjectRoleUpdateResponse"
+  project_roles_list_200_response_roles_inner: "ProjectRole"
+  project_roles_list_200_response: "ProjectRolesListResponse"
+  project_roles_create_request: "CreateProjectRoleRequest"
+  project_roles_create_200_response_role: "ProjectRoleDetails"
+  project_roles_create_200_response: "ProjectRoleCreateResponse"
+  project_roles_list_permissions_200_response: "ProjectPermissionsResponse"
+  
+  # Project Members
+  project_members_list_200_response_members_inner_role: "MemberRole"
+  project_members_list_200_response_members_inner: "ProjectMember"
+  project_members_list_200_response: "ProjectMembersListResponse"
+  project_members_add_request: "AddProjectMemberRequest"
+  project_members_add_200_response_member_role: "AddedMemberRole"
+  project_members_add_200_response_member: "AddedProjectMember"
+  project_members_add_200_response: "ProjectMemberAddResponse"
+  project_members_get_200_response_member_role: "ProjectMemberRole"
+  project_members_get_200_response_member: "ProjectMemberDetails"
+  project_members_get_200_response: "ProjectMemberGetResponse"
+  project_members_update_request: "UpdateProjectMemberRequest"
+  project_members_update_200_response_member_role: "UpdatedMemberRole"
+  project_members_update_200_response_member: "UpdatedProjectMember"
+  project_members_update_200_response: "ProjectMemberUpdateResponse"
+  
+  # Service Accounts
+  service_accounts_get_200_response_service_account_workplace_role: "ServiceAccountWorkplaceRole"
+  service_accounts_get_200_response_service_account: "ServiceAccountDetails"
+  service_accounts_get_200_response: "ServiceAccountGetResponse"
+  service_accounts_update_request_workplace_role: "UpdateServiceAccountWorkplaceRole"
+  service_accounts_update_request: "UpdateServiceAccountRequest"
+  service_accounts_update_200_response_service_account_workplace_role: "UpdatedServiceAccountWorkplaceRole"
+  service_accounts_update_200_response_service_account: "UpdatedServiceAccount"
+  service_accounts_update_200_response: "ServiceAccountUpdateResponse"
+  service_accounts_list_200_response_service_accounts_inner_workplace_role: "ServiceAccountListWorkplaceRole"
+  service_accounts_list_200_response_service_accounts_inner: "ServiceAccountListItem"
+  service_accounts_list_200_response: "ServiceAccountsListResponse"
+  service_accounts_create_request_workplace_role: "CreateServiceAccountWorkplaceRole"
+  service_accounts_create_request: "CreateServiceAccountRequest"
+  service_accounts_create_200_response_service_account_workplace_role: "CreatedServiceAccountWorkplaceRole"
+  service_accounts_create_200_response_service_account: "CreatedServiceAccount"
+  service_accounts_create_200_response: "ServiceAccountCreateResponse"
+  
+  # Invites
+  invites_list_200_response_invites_inner_workplace_role: "InviteWorkplaceRole"
+  invites_list_200_response_invites_inner: "Invite"
+  invites_list_200_response: "InvitesListResponse"
+  
+  # Integrations
+  integrations_get_200_response_integration: "IntegrationDetails"
+  integrations_get_200_response: "IntegrationGetResponse"
+  integrations_update_request: "UpdateIntegrationRequest"
+  integrations_create_request_data: "IntegrationData"
+  integrations_create_request: "CreateIntegrationRequest"
+  integrations_create_200_response_integration: "CreatedIntegration"
+  integrations_create_200_response: "IntegrationCreateResponse"
+  integrations_list_200_response_integrations_inner_syncs_inner: "IntegrationSync"
+  integrations_list_200_response_integrations_inner: "IntegrationListItem"
+  integrations_list_200_response: "IntegrationsListResponse"
+  
+  # Syncs
+  syncs_create_request_data: "SyncData"
+  syncs_create_request: "CreateSyncRequest"
+  syncs_create_200_response_sync: "SyncDetails"
+  syncs_create_200_response: "SyncCreateResponse"
+  syncs_get_200_response_sync: "SyncInfo"
+  syncs_get_200_response: "SyncGetResponse"
+  
+  # Trusted IPs
+  configs_list_trusted_ips_200_response: "TrustedIpsListResponse"
+  configs_add_trusted_ip_request: "AddTrustedIpRequest"
+  configs_add_trusted_ip_200_response: "TrustedIpAddResponse"
+  configs_delete_trusted_ip_request: "DeleteTrustedIpRequest"
+  
+  # Dynamic Secrets
+  dynamic_secrets_revoke_lease_request: "RevokeDynamicSecretLeaseRequest"
+  dynamic_secrets_revoke_lease_200_response: "DynamicSecretLeaseRevokeResponse"
+  dynamic_secrets_issue_lease_request: "IssueDynamicSecretLeaseRequest"
+  dynamic_secrets_issue_lease_200_response_value: "DynamicSecretLeaseValue"
+  dynamic_secrets_issue_lease_200_response: "DynamicSecretLeaseIssueResponse"
+  
+  # Auth
+  auth_revoke_request: "RevokeAuthRequest"
+  auth_me_200_response_workplace: "AuthWorkplace"
+  auth_me_200_response: "AuthMeResponse"
+  
+  # Workplace Users (additional detail response)
+  audit_get_user_200_response_workplace_user_user: "AuditUserDetails"
+  audit_get_user_200_response_workplace_user: "AuditWorkplaceUser"
+  audit_get_user_200_response: "AuditUserGetResponse"
+  
+  # Integration Options
+  get_options_200_response: "IntegrationOptionsResponse"
+  
+  # Member retrieval for groups
+  retrieve_member_200_response_group_default_project_role: "GroupDefaultProjectRole"
+  retrieve_member_200_response_group_projects_inner_role: "GroupProjectRole"
+  retrieve_member_200_response_group_projects_inner: "GroupProject"
+  retrieve_member_200_response_group_members_inner: "GroupMember"
+  retrieve_member_200_response_group: "GroupWithDetails"
+  retrieve_member_200_response: "GroupMemberGetResponse"
+files:
+  Cargo.toml.mustache:
+    templateType: SupportingFiles
+    destinationFilename: Cargo.toml
+  README.md.mustache:
+    templateType: SupportingFiles
+    destinationFilename: README.md
+ignore:
+  tests
