@@ -3,4 +3,4 @@
 Cargo.lock
 .venv
 /.idea/
-
+.DS_Store
